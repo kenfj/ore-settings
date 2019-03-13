@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
+
+cd ~/Documents/github/hoge/
+
+UPSTREAM='@{u}'
+
+for x in *;
+do
+    cd $x
+    echo \*\* ${x} [$(git rev-parse --abbrev-ref HEAD)]
+    git fetch -p
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse "$UPSTREAM")
+    BASE=$(git merge-base @ "$UPSTREAM")
+
+    if [ $LOCAL = $REMOTE ]; then
+        echo "  Up-to-date"
+    elif [ $LOCAL = $BASE ]; then
+        echo "  Need to pull"
+        git pull
+    elif [ $REMOTE = $BASE ]; then
+        echo "  Need to push"
+    else
+        echo "  Diverged"
+    fi
+
+    cd ..
+done
+
